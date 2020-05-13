@@ -1,10 +1,12 @@
+const CronJob = require("cron").CronJob;
 const request = require("request");
 const moment = require("moment");
 const fs = require('fs');
 let cookieJar = request.jar();
 
 var stkSymbols = ["GODREJCP", "BOSCHLTD", "HINDALCO", "NESTLEIND", "SHREECEM", "UPL", "NMDC", "NTPC", "UBL", "BEL", "HINDPETRO", "TECHM", "NAUKRI", "TATAMOTORS", "CONCOR", "HCLTECH", "POWERGRID", "HDFCLIFE", "VEDL", "DABUR", "HINDUNILVR", "BAJAJ-AUTO", "RECLTD", "INFY", "IOC", "GODREJPROP", "WIPRO", "COALINDIA", "AMBUJACEM", "ULTRACEMCO", "HDFC", "HEROMOTOCO", "TATACONSUM", "MARICO", "SBIN", "BHARATFORG", "BPCL", "EICHERMOT", "BERGEPAINT", "MRF", "GRASIM", "FEDERALBNK", "TATAPOWER", "PETRONET", "CUMMINSIND", "TORNTPOWER", "TCS", "MARUTI", "KOTAKBANK", "CENTURYTEX", "DRREDDY", "ASHOKLEY", "BHARTIARTL", "INDIGO", "ICICIBANK", "GAIL", "DIVISLAB", "SIEMENS", "TORNTPHARM", "MUTHOOTFIN", "UJJIVAN", "MOTHERSUMI", "RELIANCE", "DLF", "EQUITAS", "LUPIN", "LICHSGFIN", "EXIDEIND", "APOLLOTYRE", "JUSTDIAL", "LT", "INFRATEL", "APOLLOHOSP", "BHEL", "BANDHANBNK", "M&M", "MGL", "TITAN", "PFC", "JSWSTEEL", "HDFCBANK", "ITC", "ZEEL", "ADANIENT", "ADANIPORTS", "AMARAJABAT", "TVSMOTOR", "AUROPHARMA", "SUNPHARMA", "AXISBANK", "JUBLFOOD", "GLENMARK", "PVR", "PNB", "MCDOWELL-N", "ASIANPAINT", "ONGC", "VOLTAS", "MANAPPURAM", "INDUSINDBK", "CADILAHC", "BANKBARODA", "CESC", "IDEA", "BAJAJFINSV", "CIPLA", "COLPAL", "BRITANNIA", "BALKRISIND", "NCC", "RBLBANK", "PIDILITIND", "SRTRANSFIN", "BAJFINANCE", "HAVELLS", "JINDALSTEL", "GMRINFRA", "ADANIPOWER", "PEL", "CANBK", "SAIL", "M&MFIN", "NIITTECH", "IDFCFIRSTB", "TATASTEEL", "TATACHEM", "SUNTV", "BIOCON", "CHOLAFIN", "SRF", "PAGEIND", "TATAGLOBAL", "MFSL", "BATAINDIA", "IBULHSGFIN", "YESBANK", "L&TFH", "NATIONALUM", "OIL", "ACC", "IGL", "ICICIPRULI", "MINDTREE", "ESCORTS", "RAMCOCEM"];
-let futureExpiry = ["25-02-2016", "27-10-2016", "26-05-2016", "28-04-2016", "31-03-2016", "24-11-2016", "28-07-2016", "30-06-2016", "29-09-2016", "28-01-2016", "29-12-2016", "25-08-2016", "30-03-2017", "27-07-2017", "31-08-2017", "26-10-2017", "29-06-2017", "28-09-2017", "30-11-2017", "28-12-2017", "25-05-2017", "27-04-2017", "25-01-2017", "23-02-2017", "27-09-2018", "28-06-2018", "22-02-2018", "27-12-2018", "29-11-2018", "26-07-2018", "28-03-2018", "31-05-2018", "30-08-2018", "26-04-2018", "25-01-2018", "25-10-2018", "30-05-2019", "25-04-2019", "28-03-2019", "27-06-2019", "31-01-2019", "29-08-2019", "28-02-2019", "31-10-2019", "28-11-2019", "25-07-2019", "26-12-2019", "26-09-2019", "30-01-2020", "27-02-2020", "26-03-2020", "30-04-2020"];
+let futureExpiry = ["27-09-2018", "28-06-2018", "22-02-2018", "27-12-2018", "29-11-2018", "26-07-2018", "28-03-2018", "31-05-2018", "30-08-2018", "26-04-2018", "25-01-2018", "25-10-2018", "30-05-2019", "25-04-2019", "28-03-2019", "27-06-2019", "31-01-2019", "29-08-2019", "28-02-2019", "31-10-2019", "28-11-2019", "25-07-2019", "26-12-2019", "26-09-2019", "30-01-2020", "27-02-2020", "26-03-2020", "30-04-2020", "28-05-2020"];
+stkSymbols = stkSymbols.sort();
 
 function getData(addObj, stock, expiry) {
   return new Promise((resolve, reject) => {
@@ -134,9 +136,10 @@ async function download(stock) {
       let d2 = moment(b.date, 'DD-MMM-YYYY');
       return d1.diff(d2);
     });
-    fs.writeFileSync('public/data/' + stock + '.json', JSON.stringify(merged));
+    fs.writeFileSync('wwwroot/data/' + stock + '.json', JSON.stringify(merged));
     resolve();
   })
 }
 
 init();
+new CronJob('0 0 1 * * *', init, null, true, 'Asia/Kolkata');

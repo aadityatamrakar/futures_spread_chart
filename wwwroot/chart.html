@@ -1,0 +1,131 @@
+<html>
+
+<head>
+  <title>Futures Spread Analysis</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
+
+  <script src="https://cdn.anychart.com/releases/8.7.1/js/anychart-core.min.js" type="text/javascript"></script>
+  <script src="https://cdn.anychart.com/releases/8.7.1/js/anychart-stock.min.js" type="text/javascript"></script>
+  <script src="https://cdn.anychart.com/releases/8.7.1/js/anychart-annotations.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/css/select2.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.slim.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.12/js/select2.full.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div style="padding-top: 10px; text-align:center;">
+      Select Stock: <select style=" width: 30%;" name="future" id="future" onchange="updateData()"></select>
+      <span id="status"></span>
+    </div>
+    <div id="container" style="width: 100%; height: 90%;"></div>
+    <a style="text-align: center" href="https://www.stockmaniacs.net/" target="_blank">&copy; StockManiacs.net</a>
+  </div>
+
+  <script>
+    var dataTable, mainChart, stkSymbols = ["GODREJCP", "BOSCHLTD", "HINDALCO", "NESTLEIND", "SHREECEM", "UPL",
+      "NMDC",
+      "NTPC", "UBL", "BEL", "HINDPETRO", "TECHM", "NAUKRI", "TATAMOTORS", "CONCOR", "HCLTECH", "POWERGRID",
+      "HDFCLIFE", "VEDL", "DABUR", "HINDUNILVR", "BAJAJ-AUTO", "RECLTD", "INFY", "IOC", "GODREJPROP", "WIPRO",
+      "COALINDIA", "AMBUJACEM", "ULTRACEMCO", "HDFC", "HEROMOTOCO", "TATACONSUM", "MARICO", "SBIN", "BHARATFORG",
+      "BPCL", "EICHERMOT", "BERGEPAINT", "MRF", "GRASIM", "FEDERALBNK", "TATAPOWER", "PETRONET", "CUMMINSIND",
+      "TORNTPOWER", "TCS", "MARUTI", "KOTAKBANK", "CENTURYTEX", "DRREDDY", "ASHOKLEY", "BHARTIARTL", "INDIGO",
+      "ICICIBANK", "GAIL", "DIVISLAB", "SIEMENS", "TORNTPHARM", "MUTHOOTFIN", "UJJIVAN", "MOTHERSUMI", "RELIANCE",
+      "DLF", "EQUITAS", "LUPIN", "LICHSGFIN", "EXIDEIND", "APOLLOTYRE", "JUSTDIAL", "LT", "INFRATEL", "APOLLOHOSP",
+      "BHEL", "BANDHANBNK", "M&M", "MGL", "TITAN", "PFC", "JSWSTEEL", "HDFCBANK", "ITC", "ZEEL", "ADANIENT",
+      "ADANIPORTS", "AMARAJABAT", "TVSMOTOR", "AUROPHARMA", "SUNPHARMA", "AXISBANK", "JUBLFOOD", "GLENMARK", "PVR",
+      "PNB", "MCDOWELL-N", "ASIANPAINT", "ONGC", "VOLTAS", "MANAPPURAM", "INDUSINDBK", "CADILAHC", "BANKBARODA",
+      "CESC", "IDEA", "BAJAJFINSV", "CIPLA", "COLPAL", "BRITANNIA", "BALKRISIND", "NCC", "RBLBANK", "PIDILITIND",
+      "SRTRANSFIN", "BAJFINANCE", "HAVELLS", "JINDALSTEL", "GMRINFRA", "ADANIPOWER", "PEL", "CANBK", "SAIL",
+      "M&MFIN",
+      "NIITTECH", "IDFCFIRSTB", "TATASTEEL", "TATACHEM", "SUNTV", "BIOCON", "CHOLAFIN", "SRF", "PAGEIND",
+      "TATAGLOBAL", "MFSL", "BATAINDIA", "IBULHSGFIN", "YESBANK", "L&TFH", "NATIONALUM", "OIL", "ACC", "IGL",
+      "ICICIPRULI", "MINDTREE", "ESCORTS", "RAMCOCEM"
+    ];
+    stkSymbols = stkSymbols.sort();
+
+    (function () {
+      let future = document.getElementById('future');
+      for (i = 0; i < stkSymbols.length; i++) {
+        let op = document.createElement('option');
+        op.value = stkSymbols[i];
+        op.innerText = stkSymbols[i];
+        future.appendChild(op);
+      }
+
+      $(document).ready(function () {
+        $('#future').select2();
+      });
+    })();
+
+    function getData() {
+      document.getElementById('status').innerText = 'Loading...';
+      return new Promise((resolve, reject) => {
+        let future = document.getElementById('future').value;
+        fetch('/data/' + future + '.json').then(resp => {
+          return resp.json()
+        }).then(data => {
+          document.getElementById('status').innerText = '';
+          data = data.map(c => ([c.date, c.underlying - c.close])).filter(c => c[1] < 100 && c[1] > -100);
+          resolve(data);
+        })
+      })
+    }
+
+    anychart.onDocumentReady(renderChart);
+
+    function clearChart() {
+      document.getElementById('container').innerHTML = '';
+    }
+
+    function updateData() {
+      getData().then(data => {
+        dataTable.remove();
+        dataTable.addData(data);
+      })
+    }
+
+    function renderChart() {
+      dataTable = anychart.data.table();
+      getData().then(data => {
+        dataTable.addData(data);
+
+        var mapping = dataTable.mapAs({
+          'close': 1,
+          'value': {
+            column: 1,
+            type: 'close'
+          }
+        });
+
+        // create stock chart
+        mainChart = anychart.stock();
+        let plot = mainChart.plot(0);
+        plot.line(mapping);
+        plot.bbands(mapping);
+        var credits = mainChart.credits();
+        credits.text("StockManiacs.net");
+        credits.url("https://www.stockmaniacs.net/");
+        var controller = plot.annotations();
+        controller.horizontalLine({
+          valueAnchor: 0,
+          hovered: {
+            stroke: "2 #ff0000"
+          },
+          selected: {
+            stroke: "4 #ff0000"
+          }
+        });
+
+        var plot1 = mainChart.plot(1);
+        plot1.rsi(mapping);
+
+        mainChart.scroller().line(mapping);
+        mainChart.container('container');
+        mainChart.draw();
+      });
+    }
+  </script>
+</body>
+
+</html>
