@@ -1,0 +1,16 @@
+{
+  "name": "futures_spread_chart",
+  "version": "1.0.0",
+  "description": "Equity Cash and Equity futures spread data in daily time frame on chart.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aaditya Tamrakar",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "moment": "^2.25.3",
+    "request": "^2.88.2"
+  }
+}
